@@ -24,10 +24,12 @@ using namespace std;
 using namespace voro;
 
 /* IMPORTANT - overwriting standard exit function - notifies user that exit was called before exiting */
+#ifndef _MSC_VER
 void exit(int status) {
   printf("NOTICE: calling abort()\n");
   abort();
 }
+#endif
 
 /* converts string to upper case */
 std::string toUpperCase(const std::string & s)
