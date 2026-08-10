@@ -21,27 +21,36 @@ USE_CYTHON = False
 ext = '.pyx' if USE_CYTHON else '.cpp'
 language = "c++"
 includedirs = []
+cpp_extra_compile_args = []
 cpp_extra_link_args = []
 
-# These default compile flags mimic the flags used in the Zeo++/Voro++ Makefile
-cpp_extra_compile_args = [
-    "-Wall",
-    "-ansi",
-    "-pedantic",
-    "-O3",
-]
-
-def using_clang():
-    """Will we be using a clang compiler?
-    """
+def configured_compiler():
+    """Return the configured distutils compiler instance."""
     compiler = new_compiler()
     customize_compiler(compiler)
+    return compiler
+
+
+def using_clang(compiler):
+    """Will we be using a clang compiler?"""
     compiler_ver = getoutput("{0} -v".format(compiler.compiler[0]))
     return "clang" in compiler_ver
 
+
+compiler = configured_compiler()
+
+# These default compile flags mimic the flags used in the Zeo++/Voro++ Makefile.
+if compiler.compiler_type != "msvc":
+    cpp_extra_compile_args = [
+        "-Wall",
+        "-ansi",
+        "-pedantic",
+        "-O3",
+    ]
+
 # Needed to specify C++ runtime library on OSX. This solution is replicated
 # from the setup.py of mdanalysis
-if platform.system() == "Darwin" and using_clang():
+if platform.system() == "Darwin" and using_clang(compiler):
     cpp_extra_compile_args.append("-stdlib=libc++")
     cpp_extra_compile_args.append("-mmacosx-version-min=10.9")
     cpp_extra_link_args.append("-stdlib=libc++")
