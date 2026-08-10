@@ -561,7 +561,7 @@ void ha_prune_within_atom(VORONOI_NETWORK* ha_vornet, ATOM_NETWORK* atmnet,
                 break;
             }
         }
-        if (not near_flag) 
+        if (!near_flag)
             red_vornet->nodes.push_back(*vh_it);
     }
 
