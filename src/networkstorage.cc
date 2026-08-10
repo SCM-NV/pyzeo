@@ -1910,7 +1910,8 @@ vector<MOLECULE> get_multiple_best_RMSD_fits(MOLECULE mol, ATOM_NETWORK *cell, i
   vector<MOLECULE> vector_of_centred_molecules;
   for(int p=0; p<num_perm; p++) { //try each permutation!
     vector<int> perm = permutations.at(p);
-    double fixed[num_fit_sites][3], moving[num_fit_sites][3];
+    vector<double[3]> fixed(num_fit_sites);
+    vector<double[3]> moving(num_fit_sites);
     XYZ fixed_CoM = origin, moving_CoM = origin;
     for(int i=0; i<num_fit_sites; i++) {
       XYZ fix(0,0,0);
@@ -1950,7 +1951,7 @@ vector<MOLECULE> get_multiple_best_RMSD_fits(MOLECULE mol, ATOM_NETWORK *cell, i
     double rotation_matrix[3][3];
     for(int i=0; i<3; i++) for(int j=0; j<3; j++) rotation_matrix[i][j] = 0; //dummy values - filled in by the rmsd method
     double rmsd = 0; //dummy value - filled in by the rmsd method
-    calculate_rotation_rmsd(fixed, moving, num_fit_sites, mov_com, mov_to_ref, rotation_matrix, &rmsd); //calling rmsd code - writes the corresponding rotation matrix
+    calculate_rotation_rmsd(fixed.data(), moving.data(), num_fit_sites, mov_com, mov_to_ref, rotation_matrix, &rmsd); //calling rmsd code - writes the corresponding rotation matrix
     //3b) some permutations are not possible, and produce NAN
     bool valid = true;
     if(isnan(rmsd)) valid=false;
@@ -3094,7 +3095,7 @@ if(verbose) printf("DEBUG: this vertex has %d edges and %d dummy_edges\n", num_e
 }
 
 void read_xyz(FILE *input, MOLECULE *mol, const char *filename) {
-  int length = 100;
+  constexpr int length = 100;
   char ch1[length];
   int status = 0;
   int num_atoms = 0;

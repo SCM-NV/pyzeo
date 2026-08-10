@@ -1401,7 +1401,7 @@ void reportPlane(ostream &output, vector<Plane> p){
 void reportHistogram(ostream& output,const double binSize,const int maxBins, vector<ray>& rays)
 {
   assert(binSize > threshold);
-  int bins[maxBins];
+  vector<int> bins(maxBins);
   for (int i=0; i<maxBins; i++)
     {
       bins[i] = 0;
