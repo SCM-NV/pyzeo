@@ -1908,10 +1908,10 @@ vector<MOLECULE> get_multiple_best_RMSD_fits(MOLECULE mol, ATOM_NETWORK *cell, i
   int best_rmsd_ID = -1;
   vector<FIT> vector_of_fits;
   vector<MOLECULE> vector_of_centred_molecules;
+  double (*fixed)[3] = new double [num_fit_sites][3];
+  double (*moving)[3] = new double [num_fit_sites][3];
   for(int p=0; p<num_perm; p++) { //try each permutation!
     vector<int> perm = permutations.at(p);
-    vector<double[3]> fixed(num_fit_sites);
-    vector<double[3]> moving(num_fit_sites);
     XYZ fixed_CoM = origin, moving_CoM = origin;
     for(int i=0; i<num_fit_sites; i++) {
       XYZ fix(0,0,0);
@@ -1951,7 +1951,7 @@ vector<MOLECULE> get_multiple_best_RMSD_fits(MOLECULE mol, ATOM_NETWORK *cell, i
     double rotation_matrix[3][3];
     for(int i=0; i<3; i++) for(int j=0; j<3; j++) rotation_matrix[i][j] = 0; //dummy values - filled in by the rmsd method
     double rmsd = 0; //dummy value - filled in by the rmsd method
-    calculate_rotation_rmsd(fixed.data(), moving.data(), num_fit_sites, mov_com, mov_to_ref, rotation_matrix, &rmsd); //calling rmsd code - writes the corresponding rotation matrix
+    calculate_rotation_rmsd(fixed, moving, num_fit_sites, mov_com, mov_to_ref, rotation_matrix, &rmsd); //calling rmsd code - writes the corresponding rotation matrix
     //3b) some permutations are not possible, and produce NAN
     bool valid = true;
     if(isnan(rmsd)) valid=false;
@@ -1973,6 +1973,8 @@ vector<MOLECULE> get_multiple_best_RMSD_fits(MOLECULE mol, ATOM_NETWORK *cell, i
       vector_of_centred_molecules.push_back(centred_aligned_mol);
     } else if(verbose) printf("\tTHIS PERMUTATION COULD NOT PRODUCE A VALID ROTATION MATRIX\n");
   }
+  delete[] fixed;
+  delete[] moving;
 
   //now return all molecules which are within a tolerance of the best RMSD
   int num_fits = vector_of_fits.size();
@@ -3095,7 +3097,7 @@ if(verbose) printf("DEBUG: this vertex has %d edges and %d dummy_edges\n", num_e
 }
 
 void read_xyz(FILE *input, MOLECULE *mol, const char *filename) {
-  constexpr int length = 100;
+  const int length = 100;
   char ch1[length];
   int status = 0;
   int num_atoms = 0;
